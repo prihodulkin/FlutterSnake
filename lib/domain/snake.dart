@@ -21,16 +21,21 @@ abstract class Snake implements Obstacle {
 abstract class ClassicSnake extends Snake with PointsMovingMixin {
   final List<Point> _body;
 
-  ClassicSnake(Point initialPoint, Direction turn)
+  ClassicSnake(Point initialPoint, Direction direction)
       : _body = <Point>[initialPoint],
-        super(initialPoint, turn);
+        super(initialPoint, direction);
 
   ///In case of the classical snake growing means add one segment in the tail
   @override
   void grow() {
-    var prevToTail = _body[_body.length - 2];
-    var direction = getStraightMovingDirection(tail, prevToTail);
-    _body.add(tail.moveStraight(direction.oppositeDirection()));
+    Direction lastSegmentDirection;
+    if (length > 1) {
+      var prevToTail = _body[_body.length - 2];
+      lastSegmentDirection = getStraightMovingDirection(tail, prevToTail);
+    } else {
+      lastSegmentDirection = direction;
+    }
+    _body.add(tail.moveStraight(lastSegmentDirection.oppositeDirection()));
   }
 
   ///One point moving along ```direction```
