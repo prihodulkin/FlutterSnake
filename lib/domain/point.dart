@@ -16,7 +16,12 @@ class Point {
   @override
   int get hashCode => x.hashCode ^ y.hashCode;
 
-  Point moveStraight(Direction direction) {
+  @override
+  String toString() {
+    return "(x: $x y: $y)";
+  }
+
+  Point moveAlongDirection(Direction direction) {
     switch (direction) {
       case Direction.left:
         return Point(x - 1, y);

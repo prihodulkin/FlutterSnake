@@ -1,7 +1,6 @@
-import 'package:snake/domain/point.dart';
+import 'package:snake/domain/snake.dart';
 
 abstract class Obstacle{
-  ///[point] is a some object representaion in model coordinates
-  bool hasCollision(Point point);
+  bool hasCollision(Snake snake);
   void postCollisionCallback();
 }

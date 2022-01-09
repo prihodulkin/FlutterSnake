@@ -5,25 +5,39 @@ import 'direction.dart';
 
 ///represents snake behaviour in model coordinates
 abstract class Snake implements Obstacle {
-  Direction direction;
-  void move();
+  void moveStraight();
+  void moveLeft();
+  void moveRight();
   void grow();
 
   ///contains coordinates of snake's segments from head to tail
   Iterable<Point> getBody();
+
+  Direction get headDirection;
   Point get head;
   Point get tail;
   int get length;
-  Snake(Point initialPoint, this.direction);
+
+  @override
+  String toString() {
+    var stringBuffer = StringBuffer('{ Snake: ');
+    for(var segment in getBody()){
+      stringBuffer.write(segment);
+      stringBuffer.write('<-');
+    }
+    stringBuffer.write(' }');
+    return stringBuffer.toString();
+  }
 }
 
 ///The snake which grows by one segment in the tail and moves only straight
 abstract class ClassicSnake extends Snake with PointsMovingMixin {
   final List<Point> _body;
+  Direction _direction;
 
   ClassicSnake(Point initialPoint, Direction direction)
       : _body = <Point>[initialPoint],
-        super(initialPoint, direction);
+        _direction = direction;
 
   ///In case of the classical snake growing means add one segment in the tail
   @override
@@ -33,23 +47,34 @@ abstract class ClassicSnake extends Snake with PointsMovingMixin {
       var prevToTail = _body[_body.length - 2];
       lastSegmentDirection = getStraightMovingDirection(tail, prevToTail);
     } else {
-      lastSegmentDirection = direction;
+      lastSegmentDirection = headDirection;
     }
-    _body.add(tail.moveStraight(lastSegmentDirection.oppositeDirection()));
+    _body.add(tail.moveAlongDirection(lastSegmentDirection.oppositeDirection()));
   }
 
-  ///One point moving along ```direction```
   @override
-  void move() {
+  void moveStraight() {
     var prevComponent = tail;
     for (int i = _body.length - 2; i >= 0; i--) {
       var nextComponent = _body[i];
       var movingDirection =
           getStraightMovingDirection(prevComponent, nextComponent);
-      _body[i + 1] = prevComponent.moveStraight(movingDirection);
+      _body[i + 1] = prevComponent.moveAlongDirection(movingDirection);
       prevComponent = nextComponent;
     }
-    _body[0] = head.moveStraight(direction);
+    _body[0] = head.moveAlongDirection(headDirection);
+  }
+
+  @override
+  void moveLeft() {
+    _direction = headDirection.turnLeft();
+    moveStraight();
+  }
+
+  @override
+  void moveRight() {
+    _direction = headDirection.turnRight();
+    moveStraight();
   }
 
   @override
@@ -58,6 +83,9 @@ abstract class ClassicSnake extends Snake with PointsMovingMixin {
       yield segment;
     }
   }
+
+  @override
+  Direction get headDirection => _direction;
 
   @override
   Point get head => _body.first;
@@ -69,10 +97,16 @@ abstract class ClassicSnake extends Snake with PointsMovingMixin {
   int get length => _body.length;
 
   @override
-  bool hasCollision(Point point) {
-    for (var segment in _body) {
-      if (point == segment) return true;
+  bool hasCollision(Snake snake) {
+    int startIndex = snake == this ? 1 : 0;
+    var snakeHead = snake.head;
+    for (int i = startIndex; i < _body.length; i++) {
+      var segment = _body[i];
+      if (segment == snakeHead) {
+        return true;
+      }
     }
+
     return false;
   }
 }

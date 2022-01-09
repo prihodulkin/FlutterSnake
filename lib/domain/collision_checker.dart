@@ -6,7 +6,7 @@ class CollisionChecker {
   ///returns [CollisionData] if there is self-coollision or 
   ///collision with obstacle
   ///or null if there are no collisions
-  static CollisionData? checkAnySnakeCollision(
+  static CollisionData? checkSnakeCollisionWithObstacleOrItself(
       Snake snake, ObstaclesRepository obstaclesRepository) {
     if (checkSnakeCollisionWithObstacle(snake, obstaclesRepository) == null) {
       return checkSnakeSelfCollision(snake);
@@ -16,19 +16,17 @@ class CollisionChecker {
   ///returns null if there are no collisions
   static CollisionData? checkSnakeCollisionWithObstacle(
       Snake snake, ObstaclesRepository obstaclesRepository) {
-    var snakeHead = snake.head;
     for (var obstacle in obstaclesRepository.getBariers()) {
-      if (obstacle.hasCollision(snakeHead)) {
-        return CollisionData(snakeHead, obstacle);
+      if (obstacle.hasCollision(snake)) {
+        return CollisionData(snake.head, obstacle);
       }
     }
   }
 
   ///returns null if there are no collisions
   static CollisionData? checkSnakeSelfCollision(Snake snake) {
-    var snakeHead = snake.head;
-    if (snake.hasCollision(snakeHead)) {
-      return CollisionData(snakeHead, snake);
+    if (snake.hasCollision(snake)) {
+      return CollisionData(snake.head, snake);
     }
   }
 }
